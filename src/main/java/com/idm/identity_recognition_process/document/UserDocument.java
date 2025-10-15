@@ -40,6 +40,15 @@ public class UserDocument {
                 });
     }
 
+    public void validateNotVerified() {
+        Optional.ofNullable(this.status.code)
+                .filter(value -> UserStatusType.VERIFIED.name().equals(value))
+                .ifPresent(value -> {
+                    throw new IllegalStateException("El usuario ya está verificado");
+                });
+    }
+
+
     private boolean isBlocked(UserDocument user) {
         return UserStatusType.BLOCKED.name().equals(user.getStatus().getCode());
     }
