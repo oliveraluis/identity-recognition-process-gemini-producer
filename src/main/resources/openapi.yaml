@@ -1,0 +1,94 @@
+openapi: 3.0.3
+info:
+  title: Identity Recognition API
+  version: 1.0.0
+  description: API para autenticación y envío de documentos de identidad para procesamiento asincrónico.
+
+paths:
+  /login:
+    post:
+      summary: Inicia sesión y devuelve un identificador de sesión
+      description: Recibe credenciales de login y devuelve un identificador de sesión.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login exitoso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Credenciales inválidas
+
+  /identity:
+    post:
+      summary: Procesa archivos de identidad y los envía por Kafka
+      description: Recibe archivos frontal y dorsal de un documento de identidad junto con el session-id. El procesamiento es asincrónico y se retorna 202 Accepted.
+      operationId: processIdentity
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                frontalFile:
+                  type: string
+                  format: binary
+                  description: Imagen frontal del documento de identidad
+                dorsalFile:
+                  type: string
+                  format: binary
+                  description: Imagen dorsal del documento de identidad
+      parameters:
+        - name: session-id
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Identificador de sesión del usuario
+      responses:
+        '202':
+          description: Solicitud aceptada para procesamiento asincrónico
+        '400':
+          description: Solicitud malformada o incompleta
+        '500':
+          description: Error interno del servidor
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identificador de sesión generado tras login
+
+    IdentityPayload:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        frontal:
+          type: string
+          format: byte
+        dorsal:
+          type: string
+          format: byte

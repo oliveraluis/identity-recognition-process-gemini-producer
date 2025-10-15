@@ -24,3 +24,10 @@ spring:
         output:
           destination: ${KAFKA_TOPIC:register-identity}
           content-type: application/json
+
+gemini:
+  ia:
+    model: ${GEMINI_MODEL}
+    api:
+      key: ${GEMINI_API_KEY}
+
