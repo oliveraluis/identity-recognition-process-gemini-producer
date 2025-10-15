@@ -1,6 +1,5 @@
 package com.idm.identity_recognition_process.document;
 
-import com.idm.identity_recognition_process.dto.IdentityRecognition;
 import com.idm.identity_recognition_process.exception.DomainException;
 import com.idm.identity_recognition_process.type.UserStatusType;
 import com.idm.identity_recognition_process.util.LocalDateTimeUtil;
@@ -39,6 +38,15 @@ public class UserDocument {
                     throw new DomainException("Contáctate con el administrador para desbloquear tu usuario.");
                 });
     }
+
+    public void validateNotVerified() {
+        Optional.ofNullable(this.status.code)
+                .filter(value -> UserStatusType.VERIFIED.name().equals(value))
+                .ifPresent(value -> {
+                    throw new IllegalStateException("El usuario ya está verificado");
+                });
+    }
+
 
     private boolean isBlocked(UserDocument user) {
         return UserStatusType.BLOCKED.name().equals(user.getStatus().getCode());

@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Document(collection = "sessions")
 @AllArgsConstructor
@@ -27,6 +28,15 @@ public class SessionDocument {
         SessionStatus sessionStatus = SessionStatus.from(SessionStatusType.ACTIVE);
         return new SessionDocument(null, userId, sessionStatus, LocalDateTimeUtil.getLocalDateTimeByZoneId(LocalDateTimeUtil.LIMA_ZONE));
     }
+
+    public void validateActive() {
+        Optional.ofNullable(this.status.code)
+                .filter(value -> SessionStatusType.INACTIVE.name().equals(value))
+                .ifPresent(value -> {
+                    throw new IllegalStateException("La sesión está inactiva");
+                });
+    }
+
 
     @AllArgsConstructor
     @Getter
