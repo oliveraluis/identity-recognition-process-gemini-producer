@@ -16,6 +16,7 @@ public class RouterConfig {
                                                  IdentityHandler identityHandler) {
         return RouterFunctions.route()
                 .POST("/login", loginHandler::login)
+                .POST("/identity/async", identityHandler::processAsync)
                 .POST("/identity", identityHandler::process)
                 .build();
     }
