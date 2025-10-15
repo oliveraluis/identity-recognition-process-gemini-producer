@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: ${SPRING_APP_NAME:identity-recognition-process}
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ${KAFKA_BROKER}
+          configuration:
+            security.protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
+            sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+            sasl.jaas.config: >
+              org.apache.kafka.common.security.plain.PlainLoginModule required
+              username="${KAFKA_USERNAME}";
+              password="${KAFKA_PASSWORD}";
+            linger.ms: ${KAFKA_LINGER_MS:100}
+            batch.size: ${KAFKA_BATCH_SIZE:1000000}
+            buffer.memory: ${KAFKA_BUFFER_MEMORY:128000000}
+            max.request.size: ${KAFKA_MAX_REQUEST_SIZE:64000000}
+            metadata.max.age.ms: ${KAFKA_METADATA_MAX_AGE_MS:60000}
+            compression.type: ${KAFKA_COMPRESSION_TYPE:lz4}
+            metadata.recovery.strategy: ${KAFKA_METADATA_RECOVERY_STRATEGY:rebootstrap}
+      bindings:
+        output:
+          destination: ${KAFKA_TOPIC:register-identity}
+          content-type: application/json
