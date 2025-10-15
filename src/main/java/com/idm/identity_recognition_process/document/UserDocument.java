@@ -1,6 +1,5 @@
 package com.idm.identity_recognition_process.document;
 
-import com.idm.identity_recognition_process.dto.IdentityRecognition;
 import com.idm.identity_recognition_process.exception.DomainException;
 import com.idm.identity_recognition_process.type.UserStatusType;
 import com.idm.identity_recognition_process.util.LocalDateTimeUtil;
