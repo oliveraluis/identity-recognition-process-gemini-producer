@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo: Verificación de DNI con Gemini API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo para las transiciones usadas en app.js */
+        .fade-out { opacity: 0; transform: translateY(10px); transition: all 0.3s ease-in-out; }
+        .fade-in { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+<div class="w-full max-w-lg bg-white shadow-xl rounded-xl p-8 space-y-6">
+
+    <header class="text-center pb-4 border-b">
+        <h1 class="text-3xl font-extrabold text-indigo-700">Verificación Documental DNI 🇵🇪</h1>
+        <p class="text-sm text-gray-500 mt-1">Flujo de doble paso con Gemini API.</p>
+    </header>
+
+    <div id="alertArea" class="space-y-3">
+    </div>
+
+    <div id="step1" class="border p-5 rounded-lg bg-indigo-50 fade-in">
+        <h2 class="text-xl font-semibold mb-4 text-indigo-800">1. Iniciar Sesión (Obtener `session-id`)</h2>
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label for="documentNumber" class="block text-sm font-medium text-gray-700">Número de DNI</label>
+                <input type="text" id="documentNumber" name="documentNumber" required placeholder="Ej: 71234567"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+            </div>
+            <button type="submit" id="loginButton"
+                    class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150">
+                <span id="loginButtonText">Iniciar Sesión y Continuar</span>
+                <svg id="loginButtonSpinner" class="hidden animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </button>
+        </form>
+    </div>
+
+    <div id="step2" class="hidden border p-5 rounded-lg bg-white shadow-inner">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">2. Análisis Visual (Carga de Archivos)</h2>
+        <p id="sessionIdDisplay" class="text-xs text-green-600 mb-4 font-mono"></p>
+
+        <form id="verifyForm" class="space-y-4">
+            <div>
+                <label for="frontalFile" class="block text-sm font-medium text-gray-700">DNI Frontal (JPEG/PNG)</label>
+                <input type="file" id="frontalFile" name="frontalFile" accept="image/jpeg, image/png" required
+                       class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+            </div>
+            <div>
+                <label for="dorsalFile" class="block text-sm font-medium text-gray-700">DNI Dorsal (JPEG/PNG)</label>
+                <input type="file" id="dorsalFile" name="dorsalFile" accept="image/jpeg, image/png" required
+                       class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+            </div>
+
+            <button type="submit" id="verifyButton"
+                    class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150">
+                <span id="verifyButtonText">Verificar con Gemini API</span>
+                <svg id="verifyButtonSpinner" class="hidden animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </button>
+        </form>
+    </div>
+
+    <div id="finalResult" class="hidden p-5 rounded-lg mt-6 bg-gray-50 border border-gray-200">
+        <h3 class="text-lg font-bold text-gray-800 mb-3">Resultado de la Verificación</h3>
+        <pre id="jsonResult" class="bg-gray-800 text-green-400 p-4 rounded-md text-xs overflow-x-auto"></pre>
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
