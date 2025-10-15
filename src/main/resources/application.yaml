@@ -1,6 +1,9 @@
 spring:
   application:
     name: ${SPRING_APP_NAME:identity-recognition-process}
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
   cloud:
     stream:
       kafka:
