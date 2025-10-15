@@ -6,9 +6,11 @@ import com.google.genai.Client;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.ThinkingConfig;
+import com.idm.identity_recognition_process.client.IdentityVerificationClient;
 import com.idm.identity_recognition_process.document.SessionDocument;
 import com.idm.identity_recognition_process.document.UserDocument;
 import com.idm.identity_recognition_process.dto.IdentityRecognition;
+import com.idm.identity_recognition_process.dto.IdentityResponse;
 import com.idm.identity_recognition_process.producer.RegisterIdentityProducer;
 import com.idm.identity_recognition_process.repository.SessionRepository;
 import com.idm.identity_recognition_process.repository.UserRepository;
@@ -31,12 +33,13 @@ public class IdentityServiceImpl implements IdentityService {
     private final UserRepository userRepository;
     private final Client geminiClient;
     private final RegisterIdentityProducer registerIdentityProducer;
+    private final IdentityVerificationClient identityVerificationClient;
 
     @Value("${gemini.ia.model}")
     private String model;
 
     @Override
-    public Mono<Void> process(String sessionId, Part frontal, Part dorsal) {
+    public Mono<Void> processAsync(String sessionId, Part frontal, Part dorsal) {
         return validateSession(sessionId)
                 .flatMap(session -> validateUser(session.getUserId())
                         .then(invokeGemini(frontal, dorsal))
@@ -48,16 +51,30 @@ public class IdentityServiceImpl implements IdentityService {
                 .flatMap(this::publishResult);
     }
 
+    @Override
+    public Mono<IdentityResponse> process(String sessionId, Part frontal, Part dorsal) {
+        return validateSession(sessionId)
+                .flatMap(session -> validateUser(session.getUserId())
+                        .then(invokeGemini(frontal, dorsal))
+                )
+                .map(recognition -> {
+                    recognition.addSession(sessionId);
+                    identityVerificationClient.sendIdentityRecognition(recognition);
+                    return recognition.getSuccess();
+                })
+                .flatMap(value -> Mono.just(new IdentityResponse(value)));
+    }
+
 
     private Mono<SessionDocument> validateSession(String sessionId) {
         return sessionRepository.findById(sessionId)
-                .switchIfEmpty(Mono.error(new RuntimeException("Sesión no encontrada")))
+                .switchIfEmpty(Mono.error(new RuntimeException("Session not found")))
                 .doOnNext(SessionDocument::validateActive);
     }
 
     private Mono<UserDocument> validateUser(String userId) {
         return userRepository.findById(userId)
-                .switchIfEmpty(Mono.error(new RuntimeException("Usuario no encontrado")))
+                .switchIfEmpty(Mono.error(new RuntimeException("User not found")))
                 .doOnNext(UserDocument::validateNotVerified);
     }
 
